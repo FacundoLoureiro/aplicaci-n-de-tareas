@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>modelo &#8212; MiProyecto 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <script src="../_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for modelo</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">peewee</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">db</span> <span class="o">=</span> <span class="n">SqliteDatabase</span><span class="p">(</span><span class="s2">&quot;mis_tareas.db&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="BaseModel">
+<a class="viewcode-back" href="../modelo.html#modelo.BaseModel">[docs]</a>
+<span class="k">class</span> <span class="nc">BaseModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">database</span> <span class="o">=</span> <span class="n">db</span></div>
+
+
+
+<div class="viewcode-block" id="Tareas">
+<a class="viewcode-back" href="../modelo.html#modelo.Tareas">[docs]</a>
+<span class="k">class</span> <span class="nc">Tareas</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">tarea</span> <span class="o">=</span> <span class="n">CharField</span><span class="p">()</span>
+    <span class="n">hora</span> <span class="o">=</span> <span class="n">CharField</span><span class="p">()</span></div>
+
+
+
+<span class="n">db</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="n">db</span><span class="o">.</span><span class="n">create_tables</span><span class="p">([</span><span class="n">Tareas</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="Proyecto">
+<a class="viewcode-back" href="../modelo.html#modelo.Proyecto">[docs]</a>
+<span class="k">class</span> <span class="nc">Proyecto</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="Proyecto.alta">
+<a class="viewcode-back" href="../modelo.html#modelo.Proyecto.alta">[docs]</a>
+    <span class="k">def</span> <span class="nf">alta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tarea</span><span class="p">,</span> <span class="n">hora</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+        <span class="n">cadena</span> <span class="o">=</span> <span class="n">tarea</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">patron</span> <span class="o">=</span> <span class="s2">&quot;^[A-aZ-z]+(?i:[ _-]+)*$&quot;</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">patron</span><span class="p">,</span> <span class="n">cadena</span><span class="p">):</span>
+            <span class="n">proyecto</span> <span class="o">=</span> <span class="n">Tareas</span><span class="p">()</span>
+            <span class="n">proyecto</span><span class="o">.</span><span class="n">tarea</span> <span class="o">=</span> <span class="n">tarea</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="n">proyecto</span><span class="o">.</span><span class="n">hora</span> <span class="o">=</span> <span class="n">hora</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="n">proyecto</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">actualizar_treeview</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Proyecto.borrar">
+<a class="viewcode-back" href="../modelo.html#modelo.Proyecto.borrar">[docs]</a>
+    <span class="k">def</span> <span class="nf">borrar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;borrar funciona&quot;</span><span class="p">)</span>
+        <span class="n">item_seleccionado</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">focus</span><span class="p">()</span>
+        <span class="n">valor_id</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">item_seleccionado</span><span class="p">)</span>
+        <span class="n">borrar</span> <span class="o">=</span> <span class="n">Tareas</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Tareas</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">valor_id</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
+        <span class="n">borrar</span><span class="o">.</span><span class="n">delete_instance</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">actualizar_treeview</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Proyecto.modificar">
+<a class="viewcode-back" href="../modelo.html#modelo.Proyecto.modificar">[docs]</a>
+    <span class="k">def</span> <span class="nf">modificar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tarea</span><span class="p">,</span> <span class="n">hora</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+        <span class="n">item_seleccionado</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">focus</span><span class="p">()</span>
+        <span class="n">valor_id</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">item_seleccionado</span><span class="p">)</span>
+        <span class="n">actualizar</span> <span class="o">=</span> <span class="n">Tareas</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tarea</span><span class="o">=</span><span class="n">tarea</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span> <span class="n">hora</span><span class="o">=</span><span class="n">hora</span><span class="o">.</span><span class="n">get</span><span class="p">())</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">Tareas</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">valor_id</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">actualizar</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actualizar_treeview</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Proyecto.actualizar_treeview">
+<a class="viewcode-back" href="../modelo.html#modelo.Proyecto.actualizar_treeview">[docs]</a>
+    <span class="k">def</span> <span class="nf">actualizar_treeview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mitreview</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">records</span> <span class="o">=</span> <span class="n">mitreview</span><span class="o">.</span><span class="n">get_children</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">records</span><span class="p">:</span>
+            <span class="n">mitreview</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fila</span> <span class="ow">in</span> <span class="n">Tareas</span><span class="o">.</span><span class="n">select</span><span class="p">():</span>
+            <span class="n">mitreview</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">fila</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="n">fila</span><span class="o">.</span><span class="n">tarea</span><span class="p">,</span> <span class="n">fila</span><span class="o">.</span><span class="n">hora</span><span class="p">))</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">MiProyecto</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../main.html">main module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modelo.html">modelo module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vista.html">vista module</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Facundo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
